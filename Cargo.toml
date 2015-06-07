@@ -1,0 +1,17 @@
+[package]
+name = "piston-opengex"
+version = "0.1.0"
+authors = ["bvssvni <bvssvni@gmail.com>"]
+keywords = ["opengex", "3D", "data", "model", "piston"]
+description = "Meta rules for parsing the OpenGEX format"
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/pistondevelopers/opengex.git"
+homepage = "https://github.com/pistondevelopers/opengex"
+
+[lib]
+name = "opengex"
+path = "src/lib.rs"
+
+[dependencies]
+piston_meta = "0.1.14"

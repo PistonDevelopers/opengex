@@ -1,0 +1,115 @@
+1 "comment" ["//" ..."\n"?]
+
+2 "Metric" ["Metric" w? "(" w? "key" w? "=" w? {
+    ["\"distance\"" w? ")" w? "{" w? "float" w? "{" w? $_"distance"]
+    ["\"angle\"" w? ")" w? "{" w? "float" w? "{" w? $_"angle"]
+    ["\"time\"" w? ")" w? "{" w? "float" w? "{" w? $_"distance"]
+    ["\"up\"" w? ")" w? "{" w? "string" w? "{" w? {
+        "\"y\"""up"
+        "\"z\"""up"
+    }]
+}  w? "}" w? "}"]
+
+3 "Name" ["Name" w? "{" w? "string" w? "{" w? t!"Name" w? "}" w? "}"]
+
+4 "ObjectRef" ["ObjectRef" w? "{" w? "ref" w? "{" w? "$" .."}"!"ObjectRef" w?
+    "}" w? "}"]
+
+5 "MaterialRef" ["MaterialRef" w? "(" w? "index" w? "=" w? $"index" w? ")" w? "{" w?
+    "ref" w? "{" w? "$" .."}"!"material" w? "}" w? "}"]
+
+6 "Transform" ["Transform" w? "{" w? "float[16]" w? "{" w? "{" w?
+    s!(["," w?]){$_"val"} w? "}" w? "}" w? "}"]
+
+7 "GeometryNode" ["GeometryNode" w? "$" .."{"!"name" w? "{" w? l([{
+    @"Name""Name"
+    @"ObjectRef""ObjectRef"
+    @"MaterialRef""MaterialRef"
+    @"Transform""Transform"
+} w?]) w? "}"]
+
+8 "LightNode" ["LightNode" w? "$" .."{"!"name" w? "{" w? l([{
+    @"Name""Name"
+    @"ObjectRef""ObjectRef"
+    @"Transform""Transform"
+} w?]) w? "}"]
+
+9 "CameraNode" ["CameraNode" w? "$" .."{"!"name" w? "{" w? l([{
+    @"Name""Name"
+    @"ObjectRef""ObjectRef"
+    @"Transform""Transform"
+} w?]) w? "}"]
+
+10 "VertexArray" ["VertexArray" w? "(" w? "attrib" w? "=" w? {
+    "\"position\"""position"
+    "\"normal\"""normal"
+} w? ")" w? "{" w? "float[3]" w? ?@"comment" w? "{" w? s?(["," w?]){[
+    "{" w? $_"x" w? "," w? $_"y" w? "," w? $_"z" w? "}"
+]} w? "}" w? "}"]
+
+11 "IndexArray" ["IndexArray" w? "{" w? "unsigned_int32[3]" w? ?@"comment" w?
+    w? "{" w? s?(["," w?]){
+    ["{" w? $_"a" w? "," w? $_"b" w? "," w? $_"c" w? "}"]
+} w? "}" w? "}"]
+
+12 "Mesh" ["Mesh" w? "(" w? "primitive" w? "=" w? {
+    "\"triangles\"""triangle"
+} w? ")" w? "{" w? l([{
+    @"VertexArray""VertexArray"
+    @"IndexArray""IndexArray"
+} w?]) w? "}"]
+
+13 "GeometryObject" ["GeometryObject" w? "$" .."{"!"name" w? ?@"comment" w? "{" w?
+    @"Mesh""Mesh"
+w? "}"]
+
+13 "Color" ["Color" w? "(" w? "attrib" w? "=" w? {
+    "\"light\"""light"
+    "\"diffuse\"""diffuse"
+    "\"specular\"""specular"
+} w? ")" w? "{" w? "float[3]" w? "{" w?
+    "{" w? $_"x" w? "," w? $_"y" w? "," w? $_"y" w? "}"
+w? "}" w? "}"]
+
+14 "Param" ["Param" w? "(" w? "attrib" w? "=" w? {
+    "\"scale\"""scale"
+    "\"fov\"""fov"
+    "\"near\"""near"
+    "\"far\"""far"
+    "\"specular_power\"""specular_power"
+} w? ")" w? "{" w? "float" w? "{" w? $_"val" w? "}" w? "}"]
+
+15 "Atten" ["Atten" w? "(" w? "curve" w? "=" w? {
+    "\"inverse_square\"""inverse_square"
+} w? ")" w? "{" w? @"Param""Param" w? "}"]
+
+16 "LightObject" ["LightObject" w? "$" .."{"!"name" w? "(" w? "type" w? "=" w? {
+    "\"point\"""point"
+} w? ")" w? ?@"comment" w? "{" w? l([{
+    @"Color""Color"
+    @"Atten""Atten"
+} w?]) w? "}"]
+
+17 "CameraObject" ["CameraObject" w? "$" .."{"!"name" w? ?@"comment" w? "{" w?
+    l([@"Param""Param" w?]) w? "}"]
+
+18 "Material" ["Material" w? "$" .."{"!"name" w? "{" w? l([{
+    @"Name""Name"
+    @"Color""Color"
+    @"Param""Param"
+} w?]) w? "}"]
+
+17 "OpenGEX" [
+    w?
+    l([@"Metric" w?])
+    l([{
+        @"GeometryNode""GeometryNode"
+        @"LightNode""LightNode"
+        @"CameraNode""CameraNode"
+        @"GeometryObject""GeometryObject"
+        @"LightObject""LightObject"
+        @"CameraObject""CameraObject"
+        @"Material""Material"
+    } w?])
+    w?
+]

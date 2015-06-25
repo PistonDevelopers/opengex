@@ -33,7 +33,7 @@ fn test_syntax() {
     let mut source = String::new();
     file_h.read_to_string(&mut source).unwrap();
     let data = parse(&rules, &source);
-    let data = match data {
+    let _data = match data {
         Ok(data) => data,
         Err((range, err)) => {
             // Report the error to standard error output.

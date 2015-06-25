@@ -29,3 +29,5 @@ watch.sh
 !/target/assets/
 Cargo.lock
 
+
+assets/test.ogex

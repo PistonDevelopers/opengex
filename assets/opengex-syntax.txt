@@ -5,7 +5,7 @@
 2 "Metric" ["Metric" ?@"w" "(" ?@"w" "key" ?@"w" "=" ?@"w" {
     ["\"distance\"" ?@"w" ")" ?@"w" "{" ?@"w" "float" ?@"w" "{" ?@"w" $_"distance"]
     ["\"angle\"" ?@"w" ")" ?@"w" "{" ?@"w" "float" ?@"w" "{" ?@"w" $_"angle"]
-    ["\"time\"" ?@"w" ")" ?@"w" "{" ?@"w" "float" ?@"w" "{" ?@"w" $_"distance"]
+    ["\"time\"" ?@"w" ")" ?@"w" "{" ?@"w" "float" ?@"w" "{" ?@"w" $_"time"]
     ["\"up\"" ?@"w" ")" ?@"w" "{" ?@"w" "string" ?@"w" "{" ?@"w" {
         "\"y\"""up"
         "\"z\"""up"

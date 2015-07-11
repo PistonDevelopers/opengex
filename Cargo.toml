@@ -14,4 +14,4 @@ name = "opengex"
 path = "src/lib.rs"
 
 [dependencies]
-piston_meta = "0.8.1"
+piston_meta = "0.9.8"

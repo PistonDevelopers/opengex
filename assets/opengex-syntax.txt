@@ -124,7 +124,7 @@
 
 25 "OpenGEX" [
     ?@"w"
-    l([@"Metric" ?@"w"])
+    l([@"Metric""Metric" ?@"w"])
     l([{
         @"GeometryNode""GeometryNode"
         @"LightNode""LightNode"

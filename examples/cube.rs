@@ -5,7 +5,10 @@ extern crate camera_controllers;
 extern crate gfx;
 extern crate gfx_device_gl;
 extern crate sdl2_window;
+extern crate piston_meta;
 
+use std::fs::File;
+use std::io::Read;
 use sdl2_window::Sdl2Window;
 use piston_window::*;
 use camera_controllers::{
@@ -14,22 +17,22 @@ use camera_controllers::{
     CameraPerspective,
     model_view_projection
 };
-use gfx::attrib::Floater;
 use gfx::traits::*;
+use piston_meta::*;
 
 //----------------------------------------
 // Cube associated data
 
 gfx_vertex!( Vertex {
-    a_pos@ a_pos: [Floater<i8>; 3],
-    a_tex_coord@ a_tex_coord: [Floater<u8>; 2],
+    a_pos@ a_pos: [f32; 3],
+    a_tex_coord@ a_tex_coord: [f32; 2],
 });
 
 impl Vertex {
-    fn new(pos: [i8; 3], tc: [u8; 2]) -> Vertex {
+    fn new(pos: [f32; 3], tc: [f32; 2]) -> Vertex {
         Vertex {
-            a_pos: Floater::cast3(pos),
-            a_tex_coord: Floater::cast2(tc),
+            a_pos: pos,
+            a_tex_coord: tc,
         }
     }
 }
@@ -51,38 +54,59 @@ fn main() {
 
     let ref mut factory = events.factory.borrow().clone();
 
-    let vertex_data = vec![
-        //top (0, 0, 1)
-        Vertex::new([-1, -1,  1], [0, 0]),
-        Vertex::new([ 1, -1,  1], [1, 0]),
-        Vertex::new([ 1,  1,  1], [1, 1]),
-        Vertex::new([-1,  1,  1], [0, 1]),
-        //bottom (0, 0, -1)
-        Vertex::new([ 1,  1, -1], [0, 0]),
-        Vertex::new([-1,  1, -1], [1, 0]),
-        Vertex::new([-1, -1, -1], [1, 1]),
-        Vertex::new([ 1, -1, -1], [0, 1]),
-        //right (1, 0, 0)
-        Vertex::new([ 1, -1, -1], [0, 0]),
-        Vertex::new([ 1,  1, -1], [1, 0]),
-        Vertex::new([ 1,  1,  1], [1, 1]),
-        Vertex::new([ 1, -1,  1], [0, 1]),
-        //left (-1, 0, 0)
-        Vertex::new([-1,  1,  1], [0, 0]),
-        Vertex::new([-1, -1,  1], [1, 0]),
-        Vertex::new([-1, -1, -1], [1, 1]),
-        Vertex::new([-1,  1, -1], [0, 1]),
-        //front (0, 1, 0)
-        Vertex::new([-1,  1, -1], [0, 0]),
-        Vertex::new([ 1,  1, -1], [1, 0]),
-        Vertex::new([ 1,  1,  1], [1, 1]),
-        Vertex::new([-1,  1,  1], [0, 1]),
-        //back (0, -1, 0)
-        Vertex::new([ 1, -1,  1], [0, 0]),
-        Vertex::new([-1, -1,  1], [1, 0]),
-        Vertex::new([-1, -1, -1], [1, 1]),
-        Vertex::new([ 1, -1, -1], [0, 1]),
-    ];
+    // Read OpenGEX meta rules.
+    let mut file_h = File::open("assets/opengex-syntax.txt").unwrap();
+    let mut source = String::new();
+    file_h.read_to_string(&mut source).unwrap();
+    let rules = stderr_unwrap(&source, syntax(&source));
+
+    // Read cube.ogex.
+    let mut file_h = File::open("assets/cube.ogex").unwrap();
+    let mut source = String::new();
+    file_h.read_to_string(&mut source).unwrap();
+    let data = stderr_unwrap(&source, parse(&rules, &source));
+
+    let v3 = |mut s: &mut Search| Ok([
+        try!(s.f64("x")) as f32,
+        try!(s.f64("y")) as f32,
+        try!(s.f64("z")) as f32
+    ]);
+
+    let s = Search::new(&data);
+    let vertex_data: Vec<Vertex> = stderr_unwrap(&source, s.for_bool("position", true,
+        |ref mut s| {
+        Ok(vec![
+            Vertex::new(try!(v3(s)), [0.0, 0.0]),
+            Vertex::new(try!(v3(s)), [1.0, 0.0]),
+            Vertex::new(try!(v3(s)), [1.0, 1.0]),
+            Vertex::new(try!(v3(s)), [0.0, 1.0]),
+            //bottom (0, 0, -1)
+            Vertex::new(try!(v3(s)), [0.0, 0.0]),
+            Vertex::new(try!(v3(s)), [1.0, 0.0]),
+            Vertex::new(try!(v3(s)), [1.0, 1.0]),
+            Vertex::new(try!(v3(s)), [0.0, 1.0]),
+            //right (1, 0, 0)
+            Vertex::new(try!(v3(s)), [0.0, 0.0]),
+            Vertex::new(try!(v3(s)), [1.0, 0.0]),
+            Vertex::new(try!(v3(s)), [1.0, 1.0]),
+            Vertex::new(try!(v3(s)), [0.0, 1.0]),
+            //left (-1, 0, 0)
+            Vertex::new(try!(v3(s)), [0.0, 0.0]),
+            Vertex::new(try!(v3(s)), [1.0, 0.0]),
+            Vertex::new(try!(v3(s)), [1.0, 1.0]),
+            Vertex::new(try!(v3(s)), [0.0, 1.0]),
+            //front (0, 1, 0)
+            Vertex::new(try!(v3(s)), [0.0, 0.0]),
+            Vertex::new(try!(v3(s)), [1.0, 0.0]),
+            Vertex::new(try!(v3(s)), [1.0, 1.0]),
+            Vertex::new(try!(v3(s)), [0.0, 1.0]),
+            //back (0, -1, 0)
+            Vertex::new(try!(v3(s)), [0.0, 0.0]),
+            Vertex::new(try!(v3(s)), [1.0, 0.0]),
+            Vertex::new(try!(v3(s)), [1.0, 1.0]),
+            Vertex::new(try!(v3(s)), [0.0, 1.0]),
+        ])
+    }));
 
     let mesh = factory.create_mesh(&vertex_data);
 

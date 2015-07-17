@@ -72,41 +72,47 @@ fn main() {
         try!(s.f64("z")) as f32
     ]);
 
+    let tx = vec![
+        [0.0, 0.0],
+        [1.0, 0.0],
+        [1.0, 1.0],
+        [0.0, 1.0],
+        //bottom (0, 0, -1)
+        [0.0, 0.0],
+        [1.0, 0.0],
+        [1.0, 1.0],
+        [0.0, 1.0],
+        //right (1, 0, 0)
+        [0.0, 0.0],
+        [1.0, 0.0],
+        [1.0, 1.0],
+        [0.0, 1.0],
+        //left (-1, 0, 0)
+        [0.0, 0.0],
+        [1.0, 0.0],
+        [1.0, 1.0],
+        [0.0, 1.0],
+        //front (0, 1, 0)
+        [0.0, 0.0],
+        [1.0, 0.0],
+        [1.0, 1.0],
+        [0.0, 1.0],
+        //back (0, -1, 0)
+        [0.0, 0.0],
+        [1.0, 0.0],
+        [1.0, 1.0],
+        [0.0, 1.0],
+    ];
+
     let s = Search::new(&data);
     let vertex_data: Vec<Vertex> = stderr_unwrap(&source, s.for_bool("position", true,
         |ref mut s| {
-        Ok(vec![
-            Vertex::new(try!(v3(s)), [0.0, 0.0]),
-            Vertex::new(try!(v3(s)), [1.0, 0.0]),
-            Vertex::new(try!(v3(s)), [1.0, 1.0]),
-            Vertex::new(try!(v3(s)), [0.0, 1.0]),
-            //bottom (0, 0, -1)
-            Vertex::new(try!(v3(s)), [0.0, 0.0]),
-            Vertex::new(try!(v3(s)), [1.0, 0.0]),
-            Vertex::new(try!(v3(s)), [1.0, 1.0]),
-            Vertex::new(try!(v3(s)), [0.0, 1.0]),
-            //right (1, 0, 0)
-            Vertex::new(try!(v3(s)), [0.0, 0.0]),
-            Vertex::new(try!(v3(s)), [1.0, 0.0]),
-            Vertex::new(try!(v3(s)), [1.0, 1.0]),
-            Vertex::new(try!(v3(s)), [0.0, 1.0]),
-            //left (-1, 0, 0)
-            Vertex::new(try!(v3(s)), [0.0, 0.0]),
-            Vertex::new(try!(v3(s)), [1.0, 0.0]),
-            Vertex::new(try!(v3(s)), [1.0, 1.0]),
-            Vertex::new(try!(v3(s)), [0.0, 1.0]),
-            //front (0, 1, 0)
-            Vertex::new(try!(v3(s)), [0.0, 0.0]),
-            Vertex::new(try!(v3(s)), [1.0, 0.0]),
-            Vertex::new(try!(v3(s)), [1.0, 1.0]),
-            Vertex::new(try!(v3(s)), [0.0, 1.0]),
-            //back (0, -1, 0)
-            Vertex::new(try!(v3(s)), [0.0, 0.0]),
-            Vertex::new(try!(v3(s)), [1.0, 0.0]),
-            Vertex::new(try!(v3(s)), [1.0, 1.0]),
-            Vertex::new(try!(v3(s)), [0.0, 1.0]),
-        ])
-    }));
+            let mut vs = Vec::with_capacity(24);
+            for t in &tx {
+                vs.push(Vertex::new(try!(v3(s)), *t));
+            }
+            Ok(vs)
+        }));
 
     let mesh = factory.create_mesh(&vertex_data);
 

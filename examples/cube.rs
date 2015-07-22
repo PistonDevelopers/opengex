@@ -71,7 +71,7 @@ fn main() {
         try!(s.f64("y")) as f32,
         try!(s.f64("z")) as f32
     ]);
-
+    
     let tx = vec![
         [0.0, 0.0],
         [1.0, 0.0],
@@ -116,14 +116,16 @@ fn main() {
 
     let mesh = factory.create_mesh(&vertex_data);
 
-    let index_data: &[u8] = &[
-         0,  1,  2,  2,  3,  0, // top
-         4,  6,  5,  6,  4,  7, // bottom
-         8,  9, 10, 10, 11,  8, // right
-        12, 14, 13, 14, 12, 16, // left
-        16, 18, 17, 18, 16, 19, // front
-        20, 21, 22, 22, 23, 20, // back
-    ];
+    let index_data: Vec<u8> = stderr_unwrap(&source, s.for_node("IndexArray",
+        |ref mut s| {
+            let mut is = Vec::with_capacity(36);
+            for _ in 0 .. 12 {
+                is.push(try!(s.f64("a")) as u8);
+                is.push(try!(s.f64("b")) as u8);
+                is.push(try!(s.f64("c")) as u8);
+            }
+            Ok(is)
+        }));
 
     let slice = index_data.to_slice(factory, gfx::PrimitiveType::TriangleList);
 

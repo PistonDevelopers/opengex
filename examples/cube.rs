@@ -63,18 +63,18 @@ fn main() {
     file_h.read_to_string(&mut source).unwrap();
     let data = stderr_unwrap(&source, parse(&rules, &source));
 
-    let v3 = |mut s: &mut Search| Ok([
+    let read_vertex = |mut s: &mut Search| Ok(Vertex::new([
         try!(s.f64("x")) as f32,
         try!(s.f64("y")) as f32,
         try!(s.f64("z")) as f32
-    ]);
+    ]));
 
     let s = Search::new(&data);
     let vertex_data: Vec<Vertex> = stderr_unwrap(&source, s.for_bool("position", true,
         |ref mut s| {
             let mut vs = Vec::with_capacity(24);
             for _ in 0 .. 24 {
-                vs.push(Vertex::new(try!(v3(s))));
+                vs.push(try!(read_vertex(s)));
             }
             Ok(vs)
         }));

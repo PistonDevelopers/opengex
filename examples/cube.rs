@@ -25,21 +25,18 @@ use piston_meta::*;
 
 gfx_vertex!( Vertex {
     a_pos@ a_pos: [f32; 3],
-    a_tex_coord@ a_tex_coord: [f32; 2],
 });
 
 impl Vertex {
-    fn new(pos: [f32; 3], tc: [f32; 2]) -> Vertex {
+    fn new(pos: [f32; 3]) -> Vertex {
         Vertex {
             a_pos: pos,
-            a_tex_coord: tc,
         }
     }
 }
 
 gfx_parameters!( Params {
     u_model_view_proj@ u_model_view_proj: [[f32; 4]; 4],
-    t_color@ t_color: gfx::shade::TextureParam<R>,
 });
 
 //----------------------------------------
@@ -66,50 +63,18 @@ fn main() {
     file_h.read_to_string(&mut source).unwrap();
     let data = stderr_unwrap(&source, parse(&rules, &source));
 
-    let v3 = |mut s: &mut Search| Ok([
+    let read_vertex = |mut s: &mut Search| Ok(Vertex::new([
         try!(s.f64("x")) as f32,
         try!(s.f64("y")) as f32,
         try!(s.f64("z")) as f32
-    ]);
-    
-    let tx = vec![
-        [0.0, 0.0],
-        [1.0, 0.0],
-        [1.0, 1.0],
-        [0.0, 1.0],
-        //bottom (0, 0, -1)
-        [0.0, 0.0],
-        [1.0, 0.0],
-        [1.0, 1.0],
-        [0.0, 1.0],
-        //right (1, 0, 0)
-        [0.0, 0.0],
-        [1.0, 0.0],
-        [1.0, 1.0],
-        [0.0, 1.0],
-        //left (-1, 0, 0)
-        [0.0, 0.0],
-        [1.0, 0.0],
-        [1.0, 1.0],
-        [0.0, 1.0],
-        //front (0, 1, 0)
-        [0.0, 0.0],
-        [1.0, 0.0],
-        [1.0, 1.0],
-        [0.0, 1.0],
-        //back (0, -1, 0)
-        [0.0, 0.0],
-        [1.0, 0.0],
-        [1.0, 1.0],
-        [0.0, 1.0],
-    ];
+    ]));
 
     let s = Search::new(&data);
     let vertex_data: Vec<Vertex> = stderr_unwrap(&source, s.for_bool("position", true,
         |ref mut s| {
             let mut vs = Vec::with_capacity(24);
-            for t in &tx {
-                vs.push(Vertex::new(try!(v3(s)), *t));
+            for _ in 0 .. 24 {
+                vs.push(try!(read_vertex(s)));
             }
             Ok(vs)
         }));
@@ -129,22 +94,15 @@ fn main() {
 
     let slice = index_data.to_slice(factory, gfx::PrimitiveType::TriangleList);
 
-    let texture = factory.create_texture_rgba8_static(1, 1, &[0x00_C0_A0_20]).unwrap();
-
-    let sampler = factory.create_sampler(
-        gfx::tex::SamplerInfo::new(gfx::tex::FilterMethod::Bilinear,
-                                   gfx::tex::WrapMode::Clamp)
-    );
-
     let program = {
         let vertex = gfx::ShaderSource {
-            glsl_120: Some(include_bytes!("../assets/cube_120.glslv")),
-            glsl_150: Some(include_bytes!("../assets/cube_150.glslv")),
+            glsl_120: Some(include_bytes!("../assets/cube_colored_120.glslv")),
+            glsl_150: Some(include_bytes!("../assets/cube_colored_150.glslv")),
             .. gfx::ShaderSource::empty()
         };
         let fragment = gfx::ShaderSource {
-            glsl_120: Some(include_bytes!("../assets/cube_120.glslf")),
-            glsl_150: Some(include_bytes!("../assets/cube_150.glslf")),
+            glsl_120: Some(include_bytes!("../assets/cube_colored_120.glslf")),
+            glsl_150: Some(include_bytes!("../assets/cube_colored_150.glslf")),
             .. gfx::ShaderSource::empty()
         };
         factory.link_program_source(vertex, fragment).unwrap()
@@ -152,7 +110,6 @@ fn main() {
 
     let mut data = Params {
         u_model_view_proj: vecmath::mat4_id(),
-        t_color: (texture, Some(sampler)),
         _r: std::marker::PhantomData,
     };
 

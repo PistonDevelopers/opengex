@@ -1,6 +1,6 @@
 [package]
 name = "piston-opengex"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["bvssvni <bvssvni@gmail.com>"]
 keywords = ["opengex", "3D", "data", "model", "piston"]
 description = "Meta rules for parsing the OpenGEX format"
@@ -14,12 +14,14 @@ name = "opengex"
 path = "src/lib.rs"
 
 [dependencies]
-piston_meta = "0.10.5"
+piston_meta = "0.13.0"
 
 [dev-dependencies]
-gfx = "0.6.5"
-gfx_device_gl = "0.4.1"
-piston_window = "0.8.1"
-vecmath = "0.1.1"
-camera_controllers = "0.4.0"
-pistoncore-sdl2_window = "0.5.0"
+gfx = "*"
+gfx_device_gl = "*"
+piston_window = "0.18.0"
+vecmath = "*"
+camera_controllers = "0.7.0"
+pistoncore-sdl2_window = "0.12.0"
+piston_meta_search = "*"
+

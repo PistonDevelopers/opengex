@@ -6,6 +6,7 @@ extern crate gfx;
 extern crate gfx_device_gl;
 extern crate sdl2_window;
 extern crate piston_meta;
+extern crate piston_meta_search;
 
 use std::fs::File;
 use std::io::Read;
@@ -19,6 +20,7 @@ use camera_controllers::{
 };
 use gfx::traits::*;
 use piston_meta::*;
+use piston_meta_search::*;
 
 //----------------------------------------
 // Cube associated data
@@ -42,11 +44,12 @@ gfx_parameters!( Params {
 //----------------------------------------
 
 fn main() {
-    let mut events: PistonWindow<Sdl2Window> =
+    let mut events: PistonWindow<(), Sdl2Window> =
         WindowSettings::new("piston: cube", [640, 480])
         .exit_on_esc(true)
         .samples(4)
-        .into();
+        .build()
+        .unwrap();
     events.set_capture_cursor(true);
 
     let ref mut factory = events.factory.borrow().clone();
@@ -113,7 +116,7 @@ fn main() {
         _r: std::marker::PhantomData,
     };
 
-    let get_projection = |w: &PistonWindow<Sdl2Window>| {
+    let get_projection = |w: &PistonWindow<(), Sdl2Window>| {
         let draw_size = w.window.borrow().draw_size();
         CameraPerspective {
             fov: 90.0, near_clip: 0.1, far_clip: 1000.0,

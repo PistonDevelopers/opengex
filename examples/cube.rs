@@ -99,13 +99,13 @@ fn main() {
 
     let program = {
         let vertex = gfx::ShaderSource {
-            glsl_120: Some(include_bytes!("../assets/cube_colored_120.glslv")),
-            glsl_150: Some(include_bytes!("../assets/cube_colored_150.glslv")),
+            glsl_120: Some(include_bytes!("assets/cube_colored_120.glslv")),
+            glsl_150: Some(include_bytes!("assets/cube_colored_150.glslv")),
             .. gfx::ShaderSource::empty()
         };
         let fragment = gfx::ShaderSource {
-            glsl_120: Some(include_bytes!("../assets/cube_colored_120.glslf")),
-            glsl_150: Some(include_bytes!("../assets/cube_colored_150.glslf")),
+            glsl_120: Some(include_bytes!("assets/cube_colored_120.glslf")),
+            glsl_150: Some(include_bytes!("assets/cube_colored_150.glslf")),
             .. gfx::ShaderSource::empty()
         };
         factory.link_program_source(vertex, fragment).unwrap()

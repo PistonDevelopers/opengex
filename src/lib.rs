@@ -2,3 +2,4 @@
 
 pub mod io;
 pub mod scene;
+pub mod structure;

@@ -5,6 +5,7 @@
 //! documentation, please go to http://opengex.org.
 
 use std::collections::HashMap;
+use std::rc::Rc;
 
 /// The Material structure contains information about a material. Material structures are
 /// referenced by geometry nodes through MaterialRef structures belonging to GeometryNode
@@ -152,8 +153,8 @@ pub struct Animation {
 
 /// Enum wrapping over all possible animation track targets.
 pub enum TrackTarget {
-    pub Transformation(Transformation),
-    pub MorphWeight(MorphWeight)
+    pub Transformation(Rc<Transformation>),
+    pub MorphWeight(Rc<MorphWeight>)
 }
 
 /// The Track structure contains animation key data for a single Transformation or MorphWeight

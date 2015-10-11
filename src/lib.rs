@@ -1,4 +1,6 @@
-#![deny(missing_docs)]
+//! Library for parsing OpenGEX formatted files.
 
-pub mod io;
-pub mod scene;
+#![deny(missing_docs)]
+#![feature(non_ascii_idents)]
+
+pub mod structure;

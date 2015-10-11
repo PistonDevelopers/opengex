@@ -54,13 +54,13 @@ pub struct Texture {
 /// Helper enum to contain all different kinds of Transformations.
 pub enum Transformation {
     /// A Transform structure.
-    pub Transform(Transform),
+    Transform(Transform),
     /// A Translation structure.
-    pub Translation(Translation),
+    Translation(Translation),
     /// A Rotation structure.
-    pub Rotation(Rotation),
+    Rotation(Rotation),
     /// A Scale structure.
-    pub Scale(Scale)
+    Scale(Scale)
 }
 
 /// The Transform structure holds one or more 4 x 4 transformation matrices. In the cases that a
@@ -82,13 +82,13 @@ pub struct Transform([f32; 16]);
 /// stored inside an Animation structure.
 pub enum Translation {
     /// The translation occurs along only the X axis.
-    pub X(f32),
+    X(f32),
     /// The translation occurs along only the Y axis.
-    pub Y(f32),
+    Y(f32),
     /// The translation occurs along only the Z axis.
-    pub Z(f32),
+    Z(f32),
     /// The translation occurs along all three coordinate axes.
-    pub Xyz(f32, f32, f32)
+    Xyz(f32, f32, f32)
 }
 
 /// The Rotation structure represents a rotation along one of several axes.
@@ -99,18 +99,18 @@ pub enum Translation {
 /// stored in an Animation structure.
 pub enum Rotation {
     /// The rotation occurs about the X axis.
-    pub X(f32),
+    X(f32),
     /// The rotation occurs about the Y axis.
-    pub Y(f32),
+    Y(f32),
     /// The rotation occurs about the Z axis.
-    pub Z(f32),
+    Z(f32),
     /// The rotation occurs about an arbitrary axis. The first entry of this structure is the angle
     /// of rotation. The remaining three entries are respectively the X, Y and Z components of the
     /// axis of rotation.
-    pub Axis(f32, f32, f32, f32),
+    Axis(f32, f32, f32, f32),
     /// The rotation is given by a quaternion. Please refer to the official OpenGEX documentation
     /// for more information.
-    pub Quaternion(f32, f32, f32, f32)
+    Quaternion(f32, f32, f32, f32)
 }
 
 /// The Scale structure represents a scale transformation in one of several possible variants.
@@ -121,13 +121,13 @@ pub enum Rotation {
 /// inside an Animation structure.
 pub enum Scale {
     /// The scaling occurs along only the X axis.
-    pub X(f32),
+    X(f32),
     /// The scaling occurs along only the Y axis.
-    pub Y(f32),
+    Y(f32),
     /// The scaling occurs along only the Z axis.
-    pub Z(f32),
+    Z(f32),
     /// The scaling occurs along all three coordinate axes.
-    pub Xyz(f32, f32, f32)
+    Xyz(f32, f32, f32)
 }
 
 /// The Animation structure contains animation data for a single node in a scene. Each animation
@@ -142,23 +142,29 @@ pub struct Animation {
     /// Specifies when the animation begins. If the property is not specifies, the begin time for
     /// the animation is determined by the earliest time values present in the Track structures
     /// belonging to this Animation.
-    pub begin: Opt<f32>,
+    pub begin: Option<f32>,
     /// Specifies when the animation ends. Like with the begin property, if the property is not
     /// specified, the end time for the animation is determined by the latest time values present
     /// in the Track structures belonging to this Animation.
-    pub end: Opt<f32>,
+    pub end: Option<f32>,
     /// One or more tracks that each hold animation keys for a single target.
     pub tracks: Vec<Track>,
 }
 
 /// Enum wrapping over all possible animation track targets.
 pub enum TrackTarget {
-    pub Transformation(Rc<Transformation>),
-    pub MorphWeight(Rc<MorphWeight>)
+    /// A Transformation structure. See enum to see possibilities.
+    Transformation(Rc<Transformation>),
+    /// A MorphWeight structure.
+    MorphWeight(Rc<MorphWeight>)
 }
 
 /// The Track structure contains animation key data for a single Transformation or MorphWeight
 /// structure.
-pub struct Track {
+pub struct Track;
     // TODO: Finish this structure
-}
+
+/// A MorphWeight structure holds a single morph weight for a GeometryNode structure, that
+/// references a GeometryObject strucure containing vertex data for multiple morph targets. 
+pub struct MorphWeight;
+    // TODO: Finish this structure.

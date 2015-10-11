@@ -210,5 +210,15 @@ pub enum Value {
 
 /// A MorphWeight structure holds a single morph weight for a GeometryNode structure, that
 /// references a GeometryObject strucure containing vertex data for multiple morph targets.
-pub struct MorphWeight;
-    // TODO: Finish this structure.
+///
+/// A MorphWeight structure can be the target of a track stored inside an Animation structure.
+pub struct MorphWeight {
+    /// Specifies the morph target index to which this morph weight applies. If the GeometryObject
+    /// structure contains no vertex data corresponding to this target index, then this structure
+    /// should be ignored. Each MorphWeight structure belonging to any particular GeometryNode
+    /// structure must have a unique target index among all morph weights belonging to that
+    /// GeometryNode.
+    pub target_index: u32,
+    /// The weight this MorphWeight structure represents.
+    pub weight: f32,
+}

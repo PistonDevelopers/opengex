@@ -151,6 +151,17 @@ pub struct Animation {
     pub tracks: Vec<Track>,
 }
 
+/// The Track structure contains animation key data for a single Transformation or MorphWeight
+/// structure.
+pub struct Track {
+    /// The target transformation or MorphWeight this track applies to.
+    pub target: TrackTarget,
+    /// The time curve associated with this track.
+    pub time: Time,
+    /// The value curve associated with this track.
+    pub value: Value
+}
+
 /// Enum wrapping over all possible animation track targets.
 pub enum TrackTarget {
     /// A Transformation structure. See enum to see possibilities.
@@ -159,12 +170,45 @@ pub enum TrackTarget {
     MorphWeight(Rc<MorphWeight>)
 }
 
-/// The Track structure contains animation key data for a single Transformation or MorphWeight
-/// structure.
-pub struct Track;
-    // TODO: Finish this structure
+/// The Time structure contains key time data in an animation track.
+///
+/// There are two different kinds of this structure; one for every curve kind.
+///
+/// The variants in this enum contain vectors. One vector item represents on key time.
+pub enum Time {
+    /// The times are interpolated linearly.
+    Linear(Vec<f32>),
+    /// The times are interpolated on a one-dimensional Bézier curve.
+    ///
+    /// The times in each tuple in the vector are the "value", "-control" and "+control" values of
+    /// the Bézier curve respectively.
+    Bézier(Vec<(f32, f32, f32)>)
+}
+
+/// The Value structure contains key value data in an animation track.
+///
+/// There are two different kinds of this structure; one for every curve kind.
+///
+/// The variants in this enum contain vectors. One vector item represents on key value.
+pub enum Value {
+    /// The values are not interpolated, but remain constant until the next key time.
+    Constant(Vec<f32>),
+    /// The values are interpolated linearly.
+    Linear(Vec<f32>),
+    /// The values are interpolated on a one-dimensional Bézier curve.
+    ///
+    /// The values in each tuple in the vector are the "value", "-control" and "+control" values of
+    /// the Bézier curve respectively.
+    Bézier(Vec<(f32, f32, f32)),
+    /// The values are interpolated on a tension-continuity-bias (TCB) spline.
+    ///
+    /// The values in each tuple in the vector are the "value", "tension", "bias" and "continuity"
+    /// values of the TCB spline respecitvely. The data contained in these last three values is
+    /// always scalar.
+    Tcb(Vec<(f32, f32, f32, f32))
+}
 
 /// A MorphWeight structure holds a single morph weight for a GeometryNode structure, that
-/// references a GeometryObject strucure containing vertex data for multiple morph targets. 
+/// references a GeometryObject strucure containing vertex data for multiple morph targets.
 pub struct MorphWeight;
     // TODO: Finish this structure.

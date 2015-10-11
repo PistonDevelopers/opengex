@@ -199,13 +199,13 @@ pub enum Value {
     ///
     /// The values in each tuple in the vector are the "value", "-control" and "+control" values of
     /// the Bézier curve respectively.
-    Bézier(Vec<(f32, f32, f32)),
+    Bézier(Vec<(f32, f32, f32)>),
     /// The values are interpolated on a tension-continuity-bias (TCB) spline.
     ///
     /// The values in each tuple in the vector are the "value", "tension", "bias" and "continuity"
     /// values of the TCB spline respecitvely. The data contained in these last three values is
     /// always scalar.
-    Tcb(Vec<(f32, f32, f32, f32))
+    Tcb(Vec<(f32, f32, f32, f32)>)
 }
 
 /// A MorphWeight structure holds a single morph weight for a GeometryNode structure, that

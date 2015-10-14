@@ -300,83 +300,81 @@ macro_rules! node {
     (
         $(#[$attr:meta])*
         pub struct $name:ident {
-            $(#[$doc:meta] pub $prop:ident : $type_:ty),*
+            $($(#[$doc:meta])* pub $prop:ident : $type_:ty),*
         }
     ) => (
         $(#[$attr])*
         pub struct $name {
-            /// The optional name for this node. This property is generic to all nodes.
+            /// The optional name for this node. This property is generic to all types of nodes.
             pub name: Option<Name>,
             /// Any local transformations to be applied to this node. This property is generic to
-            /// all nodes.
+            /// all types of nodes.
             pub transformations: Vec<Transformation>,
-            /// Any animations for this node. This property is generic to all nodes.
+            /// Any animations for this node. This property is generic to all types of nodes.
             pub animations: Vec<Animation>,
-            /// Any sub-nodes of this node. This property is generic to all nodes.
+            /// Any sub-nodes of this node. This property is generic to all types of nodes.
             pub children: Vec<Nodes>,
-            $(#[$doc] pub $prop : $type_),*
+            $($(#[$doc])* pub $prop : $type_),*
         }
     )
 }
 
 node! {
-    #[doc="A Node structure represents a single generic node in a scene, with no associated
-           object."]
+    /// A Node structure represents a single generic node in a scene, with no associated object.
     pub struct Node {}
 }
 
 node! {
-    #[doc="A BoneNode structure represents a single bone in a scene. The collection of bone nodes
-           forming a complete skeleton for a skinned mesh is referenced by a `BoneRefArray`
-           structure contained inside a `Skeleton` structrue. "]
+    /// A BoneNode structure represents a single bone in a scene. The collection of bone nodes
+    /// forming a complete skeleton for a skinned mesh is referenced by a `BoneRefArray` structure
+    /// contained inside a `Skeleton` structrue.
     pub struct BoneNode {}
 }
 
 node! {
-    #[doc="A GeometryNode structure represents a single geometry node in a scene. "]
+    /// A GeometryNode structure represents a single geometry node in a scene. "]
     pub struct GeometryNode {
-        #[doc="Whether this geometry is visible. Overrides the visibility of the referenced
-               `GeometryObject` structure."]
+        /// Whether this geometry is visible. Overrides the visibility of the referenced
+        /// `GeometryObject` structure.
         pub visibile: Option<bool>,
-        #[doc="Whether this geometry casts shadows. If unset, this `GeometryNode` inherits the
-               visibility of the referenced `GeometryObject` structure."]
+        /// Whether this geometry casts shadows. If unset, this `GeometryNode` inherits the
+        /// visibility of the referenced `GeometryObject` structure.
         pub casts_shadows: Option<bool>,
-        #[doc="Whether the geomery is rendered with motion blur. If unset, this `GeometryNode`
-              inherits the visibility of the referenced `GeometryObject` structure. "]
+        /// Whether the geomery is rendered with motion blur. If unset, this `GeometryNode`
+        /// inherits the visibility of the referenced `GeometryObject` structure.
         pub motion_blur: Option<bool>,
-        #[doc="A reference to a `GeometryObject` structure containing all of the required mesh data
-               and optional skinning data."]
+        /// A reference to a `GeometryObject` structure containing all of the required mesh data
+        /// and optional skinning data.
         pub geometry: Arc<GeometryObject>,
-        #[doc="A `HashMap` with references to materials associated with this geometry. Each
-               material's index in the HashMap specifies to which part of a mesh the material is
-               applied, by matching it with the `material` property of each `IndexArray` structure
-               in the mesh."]
+        /// A `HashMap` with references to materials associated with this geometry. Each material's
+        /// index in the HashMap specifies to which part of a mesh the material is applied, by
+        /// matching it with the `material` property of each `IndexArray` structure in the mesh.
         pub materials: VecMap<Arc<Material>>,
-        #[doc="If the `GeometryObject` referenced by this node contains vertex data for multiple
-               morph targets, then the node may contain one or more `MorphWeight` structures that
-               specify the blending weight for each target. Each `MorphWeight` structure may be the
-               target of a Track structure in the animation belonging to the node."]
+        /// If the `GeometryObject` referenced by this node contains vertex data for multiple morph
+        /// targets, then the node may contain one or more `MorphWeight` structures that specify
+        /// the blending weight for each target. Each `MorphWeight` structure may be the target of
+        /// a Track structure in the animation belonging to the node.
         pub morph_weights: Vec<MorphWeight>
     }
 }
 
 node! {
-    #[doc="A `CameraNode` structure represents a single camera node in a scene. "]
+    /// A `CameraNode` structure represents a single camera node in a scene.
     pub struct CameraNode {
-        #[doc="A reference to a `CameraObject` that contains the information neccesary to construct
-               the properly configured camera."]
+        /// A reference to a `CameraObject` that contains the information neccesary to construct
+        /// the properly configured camera.
         pub camera: Arc<CameraObject>
     }
 }
 
 node! {
-    #[doc="A `LightNode` structure represents a single camera node in a scene. "]
+    /// A `LightNode` structure represents a single camera node in a scene. "]
     pub struct LightNode {
-        #[doc="Whether this light is visible. Overrides the visibility of the referenced
-               `LightObject` structure."]
+        /// Whether this light is visible. Overrides the visibility of the referenced `LightObject`
+        /// structure.
         pub visibile: Option<bool>,
-        #[doc="A reference to a `LightObject` that contains the information neccesary to construct
-               the proper type of light."]
+        /// A reference to a `LightObject` that contains the information neccesary to construct the
+        /// proper type of light.
         pub light: Arc<LightObject>
     }
 }

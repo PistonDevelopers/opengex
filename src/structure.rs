@@ -5,10 +5,12 @@
 //! documentation, please go to http://opengex.org.
 
 use std::collections::HashMap;
+use std::default::Default;
 use std::sync::Arc;
+use vec_map::VecMap;
 
 /// The Material structure contains information about a material. Material structures are
-/// referenced by geometry nodes through MaterialRef structures belonging to GeometryNode
+/// referenced by geometry nodes through `Arc<Material>` structures belonging to `GeometryNode`
 /// structures.
 pub struct Material {
     /// Whether the material is two-sided.
@@ -349,7 +351,7 @@ node! {
                material's index in the HashMap specifies to which part of a mesh the material is
                applied, by matching it with the `material` property of each `IndexArray` structure
                in the mesh."]
-        pub materials: HashMap<u32, Arc<Material>>,
+        pub materials: VecMap<Arc<Material>>,
         #[doc="If the `GeometryObject` referenced by this node contains vertex data for multiple
                morph targets, then the node may contain one or more `MorphWeight` structures that
                specify the blending weight for each target. Each `MorphWeight` structure may be the
@@ -384,7 +386,22 @@ node! {
 /// instances of the same geometry with different transforms and materials.
 ///
 /// The `colors` and `textures` properties are for application-specfic use.
-pub struct GeometryObject; // TODO: Finish this structure.
+pub struct GeometryObject {
+    /// Whether this geometry is visible. Can be overriden by any `GeometryNode` structure
+    /// referencing this geometry.
+    pub visible: bool,
+    /// Whether this geometry casts shadows. Can be overriden by any `GeometryNode` structure
+    /// referencing this geometry.
+    pub casts_shadows: bool,
+    /// Whether this geometry is rendered with motion blur. Can be overriden by any `GeometryNode`
+    /// structure referencing this geometry.
+    pub motion_blur: bool,
+    /// A mesh for every level of detail. The map is indexed by the level of detail.
+    pub meshes: VecMap<Mesh>,
+    /// May contain a `Morph` structure for each morph target for which vertex data exists inside
+    /// the `Mesh` structures in `meshes`. The key of the `HashMap` is their target index.
+    pub morphs: VecMap<Morph>
+}
 
 /// A `CameraObject` structure contains data for a camera object.
 pub struct CameraObject {
@@ -409,7 +426,7 @@ pub struct LightObject {
     pub light_type: LightType,
     /// Whether this LightObject casts shadows. This can be overiden by the LightNode referencing
     /// this LightObject.
-    pub casts_shadow: bool,
+    pub casts_shadows: bool,
     /// The colors associated with this LightObject.
     ///
     /// The OpenGEX specification only references one type of color: "light". This is the main
@@ -451,4 +468,63 @@ pub enum LightType {
     /// The light source is a spot light that radiates from a single points byt in a limited range
     /// of directions In object space, the primary direction is the negative z-axis.
     Spot
+}
+
+/// The `Morph` structure holds information about a morph target belonging to a `GeometryObject`
+/// structure.
+pub struct Morph {
+    /// The base morph target index for a relative morph target.
+    pub base_target_index: Option<u32>,
+    /// An optional name for this structure.
+    pub name: Option<Name>
+}
+
+/// A `Mesh` structure cotains data for a single geometric mesh. Each mesh typically contains
+/// several arrays of per-vertex data, and one or more index arrays.
+///
+/// A mesh may contain vertex data for multiple morph targets. The morph target to which the vertex
+/// array belongs is determined by the value op its `morph` property.
+pub struct Mesh {
+    /// Specifies the type of geometric primitive used by the mesh. This must be the same for each
+    /// level of detail. See the helper-enum `GeometricPrimitive` for more details about the
+    /// different kinds of primitives.
+    pub primitive: GeometricPrimitive
+    // TODO: Finish this
+}
+
+/// Helper enum for the `Mesh` structure, representing different geometric primitives supported by
+/// OpenGEX.
+///
+/// In the documentation, `n` refers to the number of indices if an `IndexArray` structure is
+/// present, and otherwise, the number of vertices in every `VertexArray` structure. Primitives are
+/// indexed by the letter `i`, starting at zero.
+pub enum GeometricPrimitive {
+    /// The mesh is composed of a set of independent points. The number of points is `n`, and point
+    ///  `i` is given by vertex `i`.
+    Points,
+    /// The mesh is composed of a set of independent lines. The number of lines equals `n/2`, and
+    /// line `i` is composed of vertices `2i` and
+    /// `2i+1`.
+    Lines,
+    /// The mesh is composed of one or more line strips. The number of lines equals `n-1`, and line
+    ///  `i` is composed of vertices `i` and
+    /// `i+1`.
+    LineStrip,
+    /// The mesh is composed of a set of independent triangles. The number of triangles equals
+    /// `n/3`, and triangle `i` is composed of vertices `3i`, `3i+1` and `3i+1`.
+    Triangles,
+    /// The mesh is composed of one or more triangle strips.
+    ///
+    /// When `i` is even, the triangle is composed out of vertices `i`, `i+1` and `i+2`. When `i`
+    /// is odd, the triangle is composed out of vertices `i`, `i+2` and `i+1`.
+    TriangleStrip,
+    /// The mesh is composed of a set of individual quads. The number of quads equals `n/4`, and
+    /// quad `i` is composed of vertices `4i`, `4i+1`, `4i+2` and `4i+3`.
+    Quads
+}
+
+impl Default for GeometricPrimitive {
+    fn default() -> GeometricPrimitive {
+        GeometricPrimitive::Triangles
+    }
 }

@@ -17,8 +17,6 @@ path = "src/lib.rs"
 piston_meta = "0.15.0"
 nom = "~1.0.0"
 vec_map = "0.3"
-nom = "0.4.0"
-
 
 [dev-dependencies]
 gfx = "*"

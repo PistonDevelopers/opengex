@@ -5,10 +5,12 @@
 //! documentation, please go to http://opengex.org.
 
 use std::collections::HashMap;
+use std::default::Default;
 use std::sync::Arc;
+use vec_map::VecMap;
 
 /// The Material structure contains information about a material. Material structures are
-/// referenced by geometry nodes through MaterialRef structures belonging to GeometryNode
+/// referenced by geometry nodes through `Arc<Material>` structures belonging to `GeometryNode`
 /// structures.
 pub struct Material {
     /// Whether the material is two-sided.
@@ -226,58 +228,6 @@ pub struct MorphWeight {
     pub weight: f32,
 }
 
-/// The LightObject struture contains data for a light object. Multiple LightNode structures may
-/// reference a single LightObject. This allows a scene to contain multiple instances of the same
-/// light, with different transformations.
-pub struct LightObject {
-    /// The type of light emitted by this LightObject.
-    pub light_type: LightType,
-    /// Whether this LightObject casts shadows. This can be overiden by the LightNode referencing
-    /// this LightObject.
-    pub cast_shadow: bool,
-    /// The colors associated with this LightObject.
-    ///
-    /// The OpenGEX specification only references one type of color: "light". This is the main
-    /// color of light emitted by the light souArce. This defaults to an RGB value of
-    /// (1.0, 1.0, 1.0).
-    ///
-    /// There can be any other number of colors in this HashMap, for application-specific kinds.
-    pub colors: HashMap<String, Color>,
-    /// The parameters associated with this LightObject.
-    ///
-    /// The OpenGEX specification only references one type of parameter: "intensity". This is the
-    /// intensity of the light emitted by the light souArce. This defaults to 0.
-    ///
-    /// There can be any other number of parameters in this HashMap, for application-specific
-    /// kinds.
-    pub params: ParamMap,
-    /// The textures associated with this LightObject.
-    ///
-    /// The OpenGEX specification only references one type of texture: "projection". This is an
-    /// optional texture projection of this LightObject. The texture map should be oriented so that
-    /// the right direction is aligned to the object-space positive x-axis, and the up direction is
-    /// aligned to the object-space positive y-axis.
-    ///
-    /// There can be any other number of textures in this HashMap, for application-specific kinds.
-    pub textures: HashMap<String, Texture>,
-    /// Any number of attenuation functions to be applied to the LightObject. The values produced
-    /// by all of them are multiplied together to determine the intensity of the light reaching
-    /// any particular point in space.
-    pub attenuations: Atten
-}
-
-/// This is an helper-enum representing all different types of lights that a LightObject can emit.
-pub enum LightType {
-    /// The light souArce is to be treated as if it were infinitely far away so its rays are
-    /// parallel. In object space, the rays point in the direction of the negative z-axis.
-    Infinite,
-    /// The lght souArce is a point light that radiates in all directions.
-    Point,
-    /// The light source is a spot light that radiates from a single points byt in a limited range
-    /// of directions In object space, the primary direction is the negative z-axis.
-    Spot
-}
-
 /// The Atten structure specifies an attenuation function for a light object.
 pub struct Atten {
     /// The kind of attenuation.
@@ -322,4 +272,257 @@ pub enum AttenuationCurve {
     Inverse,
     /// The attenuation is given by the inverse square function.
     InverseSquare
+}
+
+/// Helper enum to represent all different types of Nodes.
+pub enum Nodes {
+    /// A `Node`.
+    Node(Node),
+    /// A `BoneNode`.
+    BoneNode(BoneNode),
+    /// A `GeometryNode`
+    GeometryNode(GeometryNode),
+    /// A `CameraNode`
+    CameraNode(CameraNode),
+    /// A `LightNode`
+    LightNode(LightNode)
+}
+
+/// Macro to do away with the redundancy of the different kinds of Node structures. The common Node
+/// properties are placed at the start of the generated structure.
+///
+/// The common properties are:
+/// * `name`: An optional name of the node.
+/// * `transformations`: A vector of local transformations to be applied to the node.
+/// * `animations`: A vector of animations that can be applied to the node.
+/// * `children`: A vector of child nodes part of this node.
+macro_rules! node {
+    (
+        $(#[$attr:meta])*
+        pub struct $name:ident {
+            $($(#[$doc:meta])* pub $prop:ident : $type_:ty),*
+        }
+    ) => (
+        $(#[$attr])*
+        pub struct $name {
+            /// The optional name for this node. This property is generic to all types of nodes.
+            pub name: Option<Name>,
+            /// Any local transformations to be applied to this node. This property is generic to
+            /// all types of nodes.
+            pub transformations: Vec<Transformation>,
+            /// Any animations for this node. This property is generic to all types of nodes.
+            pub animations: Vec<Animation>,
+            /// Any sub-nodes of this node. This property is generic to all types of nodes.
+            pub children: Vec<Nodes>,
+            $($(#[$doc])* pub $prop : $type_),*
+        }
+    )
+}
+
+node! {
+    /// A Node structure represents a single generic node in a scene, with no associated object.
+    pub struct Node {}
+}
+
+node! {
+    /// A BoneNode structure represents a single bone in a scene. The collection of bone nodes
+    /// forming a complete skeleton for a skinned mesh is referenced by a `BoneRefArray` structure
+    /// contained inside a `Skeleton` structrue.
+    pub struct BoneNode {}
+}
+
+node! {
+    /// A GeometryNode structure represents a single geometry node in a scene. "]
+    pub struct GeometryNode {
+        /// Whether this geometry is visible. Overrides the visibility of the referenced
+        /// `GeometryObject` structure.
+        pub visibile: Option<bool>,
+        /// Whether this geometry casts shadows. If unset, this `GeometryNode` inherits the
+        /// visibility of the referenced `GeometryObject` structure.
+        pub casts_shadows: Option<bool>,
+        /// Whether the geomery is rendered with motion blur. If unset, this `GeometryNode`
+        /// inherits the visibility of the referenced `GeometryObject` structure.
+        pub motion_blur: Option<bool>,
+        /// A reference to a `GeometryObject` structure containing all of the required mesh data
+        /// and optional skinning data.
+        pub geometry: Arc<GeometryObject>,
+        /// A `HashMap` with references to materials associated with this geometry. Each material's
+        /// index in the HashMap specifies to which part of a mesh the material is applied, by
+        /// matching it with the `material` property of each `IndexArray` structure in the mesh.
+        pub materials: VecMap<Arc<Material>>,
+        /// If the `GeometryObject` referenced by this node contains vertex data for multiple morph
+        /// targets, then the node may contain one or more `MorphWeight` structures that specify
+        /// the blending weight for each target. Each `MorphWeight` structure may be the target of
+        /// a Track structure in the animation belonging to the node.
+        pub morph_weights: Vec<MorphWeight>
+    }
+}
+
+node! {
+    /// A `CameraNode` structure represents a single camera node in a scene.
+    pub struct CameraNode {
+        /// A reference to a `CameraObject` that contains the information neccesary to construct
+        /// the properly configured camera.
+        pub camera: Arc<CameraObject>
+    }
+}
+
+node! {
+    /// A `LightNode` structure represents a single camera node in a scene. "]
+    pub struct LightNode {
+        /// Whether this light is visible. Overrides the visibility of the referenced `LightObject`
+        /// structure.
+        pub visibile: Option<bool>,
+        /// A reference to a `LightObject` that contains the information neccesary to construct the
+        /// proper type of light.
+        pub light: Arc<LightObject>
+    }
+}
+
+/// The `GeometryObject` structure contains data for a geometry object. Multiple `GeometryNode`
+/// structures may reference a single `GeometryObject`. This allows a scene to contain multiple
+/// instances of the same geometry with different transforms and materials.
+///
+/// The `colors` and `textures` properties are for application-specfic use.
+pub struct GeometryObject {
+    /// Whether this geometry is visible. Can be overriden by any `GeometryNode` structure
+    /// referencing this geometry.
+    pub visible: bool,
+    /// Whether this geometry casts shadows. Can be overriden by any `GeometryNode` structure
+    /// referencing this geometry.
+    pub casts_shadows: bool,
+    /// Whether this geometry is rendered with motion blur. Can be overriden by any `GeometryNode`
+    /// structure referencing this geometry.
+    pub motion_blur: bool,
+    /// A mesh for every level of detail. The map is indexed by the level of detail.
+    pub meshes: VecMap<Mesh>,
+    /// May contain a `Morph` structure for each morph target for which vertex data exists inside
+    /// the `Mesh` structures in `meshes`. The key of the `HashMap` is their target index.
+    pub morphs: VecMap<Morph>
+}
+
+/// A `CameraObject` structure contains data for a camera object.
+pub struct CameraObject {
+    /// A map of parameters associated with this camera.
+    ///
+    /// The OpenGEX specification defined three parameters: "fov", "near" and "far". Any other
+    /// parameters are application-specific.
+    pub params: ParamMap,
+    /// A map of colors associated with this camera. The OpenGEX specification does not define any
+    /// kinds of colors.
+    pub colors: HashMap<String, Color>,
+    /// A map of textures associated with this camera. The OpenGEX specification does not define
+    /// any kinds of textures.
+    pub textures: HashMap<String, Texture>
+}
+
+/// The LightObject struture contains data for a light object. Multiple LightNode structures may
+/// reference a single LightObject. This allows a scene to contain multiple instances of the same
+/// light, with different transformations.
+pub struct LightObject {
+    /// The type of light emitted by this LightObject.
+    pub light_type: LightType,
+    /// Whether this LightObject casts shadows. This can be overiden by the LightNode referencing
+    /// this LightObject.
+    pub casts_shadows: bool,
+    /// The colors associated with this LightObject.
+    ///
+    /// The OpenGEX specification only references one type of color: "light". This is the main
+    /// color of light emitted by the light souArce. This defaults to an RGB value of
+    /// (1.0, 1.0, 1.0).
+    ///
+    /// There can be any other number of colors in this HashMap, for application-specific kinds.
+    pub colors: HashMap<String, Color>,
+    /// The parameters associated with this LightObject.
+    ///
+    /// The OpenGEX specification only references one type of parameter: "intensity". This is the
+    /// intensity of the light emitted by the light souArce. This defaults to 0.
+    ///
+    /// There can be any other number of parameters in this HashMap, for application-specific
+    /// kinds.
+    pub params: ParamMap,
+    /// The textures associated with this LightObject.
+    ///
+    /// The OpenGEX specification only references one type of texture: "projection". This is an
+    /// optional texture projection of this LightObject. The texture map should be oriented so that
+    /// the right direction is aligned to the object-space positive x-axis, and the up direction is
+    /// aligned to the object-space positive y-axis.
+    ///
+    /// There can be any other number of textures in this HashMap, for application-specific kinds.
+    pub textures: HashMap<String, Texture>,
+    /// Any number of attenuation functions to be applied to the LightObject. The values produced
+    /// by all of them are multiplied together to determine the intensity of the light reaching
+    /// any particular point in space.
+    pub attenuations: Atten
+}
+
+/// This is an helper-enum representing all different types of lights that a LightObject can emit.
+pub enum LightType {
+    /// The light souArce is to be treated as if it were infinitely far away so its rays are
+    /// parallel. In object space, the rays point in the direction of the negative z-axis.
+    Infinite,
+    /// The lght souArce is a point light that radiates in all directions.
+    Point,
+    /// The light source is a spot light that radiates from a single points byt in a limited range
+    /// of directions In object space, the primary direction is the negative z-axis.
+    Spot
+}
+
+/// The `Morph` structure holds information about a morph target belonging to a `GeometryObject`
+/// structure.
+pub struct Morph {
+    /// The base morph target index for a relative morph target.
+    pub base_target_index: Option<u32>,
+    /// An optional name for this structure.
+    pub name: Option<Name>
+}
+
+/// A `Mesh` structure cotains data for a single geometric mesh. Each mesh typically contains
+/// several arrays of per-vertex data, and one or more index arrays.
+///
+/// A mesh may contain vertex data for multiple morph targets. The morph target to which the vertex
+/// array belongs is determined by the value op its `morph` property.
+pub struct Mesh {
+    /// Specifies the type of geometric primitive used by the mesh. This must be the same for each
+    /// level of detail. See the helper-enum `GeometricPrimitive` for more details about the
+    /// different kinds of primitives.
+    pub primitive: GeometricPrimitive
+    // TODO: Finish this
+}
+
+/// Helper enum for the `Mesh` structure, representing different geometric primitives supported by
+/// OpenGEX.
+///
+/// In the documentation, `n` refers to the number of indices if an `IndexArray` structure is
+/// present, and otherwise, the number of vertices in every `VertexArray` structure. Primitives are
+/// indexed by the letter `i`, starting at zero.
+pub enum GeometricPrimitive {
+    /// The mesh is composed of a set of independent points. The number of points is `n`, and point
+    ///  `i` is given by vertex `i`.
+    Points,
+    /// The mesh is composed of a set of independent lines. The number of lines equals `n/2`, and
+    /// line `i` is composed of vertices `2i` and
+    /// `2i+1`.
+    Lines,
+    /// The mesh is composed of one or more line strips. The number of lines equals `n-1`, and line
+    ///  `i` is composed of vertices `i` and
+    /// `i+1`.
+    LineStrip,
+    /// The mesh is composed of a set of independent triangles. The number of triangles equals
+    /// `n/3`, and triangle `i` is composed of vertices `3i`, `3i+1` and `3i+1`.
+    Triangles,
+    /// The mesh is composed of one or more triangle strips.
+    ///
+    /// When `i` is even, the triangle is composed out of vertices `i`, `i+1` and `i+2`. When `i`
+    /// is odd, the triangle is composed out of vertices `i`, `i+2` and `i+1`.
+    TriangleStrip,
+    /// The mesh is composed of a set of individual quads. The number of quads equals `n/4`, and
+    /// quad `i` is composed of vertices `4i`, `4i+1`, `4i+2` and `4i+3`.
+    Quads
+}
+
+impl Default for GeometricPrimitive {
+    fn default() -> GeometricPrimitive {
+        GeometricPrimitive::Triangles
+    }
 }

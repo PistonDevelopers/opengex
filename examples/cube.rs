@@ -55,13 +55,13 @@ fn main() {
     let ref mut factory = events.factory.borrow().clone();
 
     // Read OpenGEX meta rules.
-    let mut file_h = File::open("assets/opengex-syntax.txt").unwrap();
+    let mut file_h = File::open("examples/assets/opengex-syntax.txt").unwrap();
     let mut source = String::new();
     file_h.read_to_string(&mut source).unwrap();
     let rules = stderr_unwrap(&source, syntax(&source));
 
     // Read cube.ogex.
-    let mut file_h = File::open("assets/cube.ogex").unwrap();
+    let mut file_h = File::open("examples/assets/cube.ogex").unwrap();
     let mut source = String::new();
     file_h.read_to_string(&mut source).unwrap();
     let mut data = vec![];

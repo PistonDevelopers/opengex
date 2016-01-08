@@ -1,135 +1,135 @@
-0 "w" {[w? "//" ..."\n"?] [w? "/*" ..."*"? r?([!"*/" "*" ..."*"?]) "*/"] w!}
+0 w = {[.w? "//" ..."\n"?] [.w? "/*" ..."*"? .r?([!"*/" "*" ..."*"?]) "*/"] .w!}
 
-1 "comment" ["//" ..."\n"?]
+1 comment = ["//" ..."\n"?]
 
-2 "Metric" ["Metric" ?@"w" "(" ?@"w" "key" ?@"w" "=" ?@"w" {
-    ["\"distance\"" ?@"w" ")" ?@"w" "{" ?@"w" "float" ?@"w" "{" ?@"w" $_"distance"]
-    ["\"angle\"" ?@"w" ")" ?@"w" "{" ?@"w" "float" ?@"w" "{" ?@"w" $_"angle"]
-    ["\"time\"" ?@"w" ")" ?@"w" "{" ?@"w" "float" ?@"w" "{" ?@"w" $_"time"]
-    ["\"up\"" ?@"w" ")" ?@"w" "{" ?@"w" "string" ?@"w" "{" ?@"w" t!"up"]
-} ?@"w" "}" ?@"w" "}"]
+2 Metric = ["Metric" ?w "(" ?w "key" ?w "=" ?w {
+    ["\"distance\"" ?w ")" ?w "{" ?w "float" ?w "{" ?w .$_:"distance"]
+    ["\"angle\"" ?w ")" ?w "{" ?w "float" ?w "{" ?w .$_:"angle"]
+    ["\"time\"" ?w ")" ?w "{" ?w "float" ?w "{" ?w .$_:"time"]
+    ["\"up\"" ?w ")" ?w "{" ?w "string" ?w "{" ?w .t!:"up"]
+} ?w "}" ?w "}"]
 
-3 "Name" ["Name" ?@"w" "{" ?@"w" "string" ?@"w" "{" ?@"w" t!"Name" ?@"w" "}" ?@"w" "}"]
+3 Name = ["Name" ?w "{" ?w "string" ?w "{" ?w .t!:"Name" ?w "}" ?w "}"]
 
-4 "ObjectRef" ["ObjectRef" ?@"w" "{" ?@"w" "ref" ?@"w" "{" ?@"w"
-    "$" .."}"!"ObjectRef" ?@"w" "}" ?@"w" "}"]
+4 ObjectRef = ["ObjectRef" ?w "{" ?w "ref" ?w "{" ?w
+    "$" .."}"!:"ObjectRef" ?w "}" ?w "}"]
 
-5 "MaterialRef" ["MaterialRef" ?@"w" "(" ?@"w" "index" ?@"w" "=" ?@"w" $"index"
-    ?@"w" ")" ?@"w" "{" ?@"w" "ref" ?@"w" "{" ?@"w" "$" .."}"!"material" ?@"w"
-    "}" ?@"w" "}"]
+5 MaterialRef = ["MaterialRef" ?w "(" ?w "index" ?w "=" ?w .$:"index"
+    ?w ")" ?w "{" ?w "ref" ?w "{" ?w "$" .."}"!:"material" ?w
+    "}" ?w "}"]
 
-6 "Transform" ["Transform" ?@"w" "{" ?@"w" "float[16]" ?@"w" "{" ?@"w" "{" ?@"w"
-    s!(["," ?@"w"]){$_"val"} ?@"w" "}" ?@"w" "}" ?@"w" "}"]
+6 Transform = ["Transform" ?w "{" ?w "float[16]" ?w "{" ?w "{" ?w
+    .s!(["," ?w] .$_:"val") ?w "}" ?w "}" ?w "}"]
 
-7 "GeometryNode" ["GeometryNode" ?@"w" "$" .."{"!"name" ?@"w" "{" ?@"w" l([{
-    @"Name""Name"
-    @"ObjectRef""ObjectRef"
-    @"MaterialRef""MaterialRef"
-    @"Transform""Transform"
-} ?@"w"]) ?@"w" "}"]
+7 GeometryNode = ["GeometryNode" ?w "$" .."{"!:"name" ?w "{" ?w .l([{
+    Name:"Name"
+    ObjectRef:"ObjectRef"
+    MaterialRef:"MaterialRef"
+    Transform:"Transform"
+} ?w]) ?w "}"]
 
-8 "LightNode" ["LightNode" ?@"w" "$" .."{"!"name" ?@"w" "{" ?@"w" l([{
-    @"Name""Name"
-    @"ObjectRef""ObjectRef"
-    @"Transform""Transform"
-} ?@"w"]) ?@"w" "}"]
+8 LightNode = ["LightNode" ?w "$" .."{"!:"name" ?w "{" ?w .l([{
+    Name:"Name"
+    ObjectRef:"ObjectRef"
+    Transform:"Transform"
+} ?w]) ?w "}"]
 
-9 "CameraNode" ["CameraNode" ?@"w" "$" .."{"!"name" ?@"w" "{" ?@"w" l([{
-    @"Name""Name"
-    @"ObjectRef""ObjectRef"
-    @"Transform""Transform"
-} ?@"w"]) ?@"w" "}"]
+9 CameraNode = ["CameraNode" ?w "$" .."{"!:"name" ?w "{" ?w .l([{
+    Name:"Name"
+    ObjectRef:"ObjectRef"
+    Transform:"Transform"
+} ?w]) ?w "}"]
 
-10 "float[3]" ["float[3]" ?@"w" ?@"comment" ?@"w" "{" ?@"w" s?(["," ?@"w"]){[
-    "{" ?@"w" $_"x" ?@"w" "," ?@"w" $_"y" ?@"w" "," ?@"w" $_"z" ?@"w" "}"
-]}]
+10 float_3 = ["float[3]" ?w ?comment ?w "{" ?w .s?(["," ?w] [
+    "{" ?w .$_:"x" ?w "," ?w .$_:"y" ?w "," ?w .$_:"z" ?w "}"
+])]
 
-11 "float[2]" ["float[2]" ?@"w" ?@"comment" ?@"w" "{" ?@"w" s?(["," ?@"w"]){[
-    "{" ?@"w" $_"x" ?@"w" "," ?@"w" $_"y" ?@"w" "}"
-]}]
+11 float_2 = ["float[2]" ?w ?comment ?w "{" ?w .s?(["," ?w] [
+    "{" ?w .$_:"x" ?w "," ?w .$_:"y" ?w "}"
+])]
 
-12 "VertexArray" ["VertexArray" ?@"w" "(" ?@"w" "attrib" ?@"w" "=" ?@"w" {
-    ["\"position\"""position" ?@"w" ")" ?@"w" "{" ?@"w" @"float[3]" ?@"w" "}"]
-    ["\"normal\"""normal" ?@"w" ")" ?@"w" "{" ?@"w" @"float[3]" ?@"w" "}"]
-    ["\"texcoord\"""textcoord" ?@"w" ")" ?@"w" "{" ?@"w" @"float[2]" ?@"w" "}"]
-} ?@"w" "}"]
+12 VertexArray = ["VertexArray" ?w "(" ?w "attrib" ?w "=" ?w {
+    ["\"position\"":"position" ?w ")" ?w "{" ?w float_3 ?w "}"]
+    ["\"normal\"":"normal" ?w ")" ?w "{" ?w float_3 ?w "}"]
+    ["\"texcoord\"":"textcoord" ?w ")" ?w "{" ?w float_2 ?w "}"]
+} ?w "}"]
 
-13 "IndexArray" ["IndexArray" ?@"w" "{" ?@"w" "unsigned_int32[3]" ?@"w"
-    ?@"comment" ?@"w" ?@"w" "{" ?@"w" s?(["," ?@"w"]){
-    ["{" ?@"w" $_"a" ?@"w" "," ?@"w" $_"b" ?@"w" "," ?@"w" $_"c" ?@"w" "}"]
-} ?@"w" "}" ?@"w" "}"]
+13 IndexArray = ["IndexArray" ?w "{" ?w "unsigned_int32[3]" ?w
+    ?comment ?w ?w "{" ?w .s?(["," ?w]
+    ["{" ?w .$_:"a" ?w "," ?w .$_:"b" ?w "," ?w .$_:"c" ?w "}"]
+) ?w "}" ?w "}"]
 
-14 "Mesh" ["Mesh" ?@"w" "(" ?@"w" "primitive" ?@"w" "=" ?@"w" {
-    "\"triangles\"""triangle"
-} ?@"w" ")" ?@"w" "{" ?@"w" l([{
-    @"VertexArray""VertexArray"
-    @"IndexArray""IndexArray"
-} ?@"w"]) ?@"w" "}"]
+14 Mesh = ["Mesh" ?w "(" ?w "primitive" ?w "=" ?w {
+    "\"triangles\"":"triangle"
+} ?w ")" ?w "{" ?w .l([{
+    VertexArray:"VertexArray"
+    IndexArray:"IndexArray"
+} ?w]) ?w "}"]
 
-15 "GeometryObject" ["GeometryObject" ?@"w" "$" .."{"!"name" ?@"w" ?@"comment"
-    ?@"w" "{" ?@"w" @"Mesh""Mesh" ?@"w" "}"]
+15 GeometryObject = ["GeometryObject" ?w "$" .."{"!:"name" ?w ?comment
+    ?w "{" ?w Mesh:"Mesh" ?w "}"]
 
-16 "Color" ["Color" ?@"w" "(" ?@"w" "attrib" ?@"w" "=" ?@"w" {
-    "\"light\"""light"
-    "\"diffuse\"""diffuse"
-    "\"specular\"""specular"
-} ?@"w" ")" ?@"w" "{" ?@"w" "float[3]" ?@"w" "{" ?@"w"
-    "{" ?@"w" $_"x" ?@"w" "," ?@"w" $_"y" ?@"w" "," ?@"w" $_"y" ?@"w" "}"
-?@"w" "}" ?@"w" "}"]
+16 Color = ["Color" ?w "(" ?w "attrib" ?w "=" ?w {
+    "\"light\"":"light"
+    "\"diffuse\"":"diffuse"
+    "\"specular\"":"specular"
+} ?w ")" ?w "{" ?w "float[3]" ?w "{" ?w
+    "{" ?w .$_:"x" ?w "," ?w .$_:"y" ?w "," ?w .$_:"y" ?w "}"
+?w "}" ?w "}"]
 
-17 "Param" ["Param" ?@"w" "(" ?@"w" "attrib" ?@"w" "=" ?@"w" {
-    "\"scale\"""scale"
-    "\"fov\"""fov"
-    "\"near\"""near"
-    "\"far\"""far"
-    "\"specular_power\"""specular_power"
-} ?@"w" ")" ?@"w" "{" ?@"w" "float" ?@"w" "{" ?@"w" $_"val" ?@"w" "}" ?@"w" "}"]
+17 Param = ["Param" ?w "(" ?w "attrib" ?w "=" ?w {
+    "\"scale\"":"scale"
+    "\"fov\"":"fov"
+    "\"near\"":"near"
+    "\"far\"":"far"
+    "\"specular_power\"":"specular_power"
+} ?w ")" ?w "{" ?w "float" ?w "{" ?w .$_:"val" ?w "}" ?w "}"]
 
-18 "Atten" ["Atten" ?@"w" "(" ?@"w" "curve" ?@"w" "=" ?@"w" {
-    "\"inverse_square\"""inverse_square"
-} ?@"w" ")" ?@"w" "{" ?@"w" @"Param""Param" ?@"w" "}"]
+18 Atten = ["Atten" ?w "(" ?w "curve" ?w "=" ?w {
+    "\"inverse_square\"":"inverse_square"
+} ?w ")" ?w "{" ?w Param:"Param" ?w "}"]
 
-19 "light_type" ["type" ?@"w" "=" ?@"w" {
-    "\"point\"""point"
-    "\"infinite\"""infinite"
+19 light_type = ["type" ?w "=" ?w {
+    "\"point\"":"point"
+    "\"infinite\"":"infinite"
 }]
 
-20 "shadow" ["shadow" ?@"w" "=" ?@"w" {"true""shadow" "false"!"shadow"}]
+20 shadow = ["shadow" ?w "=" ?w {"true":"shadow" "false":!"shadow"}]
 
-21 "LightObject" ["LightObject" ?@"w" "$" .."{"!"name" ?@"w" "(" ?@"w"
-    s?(["," ?@"w"]){{
-        @"light_type"
-        @"shadow"
-    }} ?@"w" ")" ?@"w" ?@"comment" ?@"w" "{" ?@"w" l([{
-        @"Color""Color"
-        @"Atten""Atten"
-} ?@"w"]) ?@"w" "}"]
+21 LightObject = ["LightObject" ?w "$" .."{"!:"name" ?w "(" ?w
+    .s?(["," ?w] {
+        light_type
+        shadow
+    }) ?w ")" ?w ?comment ?w "{" ?w .l([{
+        Color:"Color"
+        Atten:"Atten"
+} ?w]) ?w "}"]
 
-22 "CameraObject" ["CameraObject" ?@"w" "$" .."{"!"name" ?@"w" ?@"comment"
-    ?@"w" "{" ?@"w" l([@"Param""Param" ?@"w"]) ?@"w" "}"]
+22 CameraObject = ["CameraObject" ?w "$" .."{"!:"name" ?w ?comment
+    ?w "{" ?w .l([Param:"Param" ?w]) ?w "}"]
 
-23 "Texture" ["Texture" ?@"w" "(" ?@"w" "attrib" ?@"w" "=" ?@"w" "\"diffuse\""
-    ?@"w" ")" ?@"w" "{" ?@"w" "string" ?@"w" "{" ?@"w" t!"file" ?@"w" "}" ?@"w"
+23 Texture = ["Texture" ?w "(" ?w "attrib" ?w "=" ?w "\"diffuse\""
+    ?w ")" ?w "{" ?w "string" ?w "{" ?w .t!:"file" ?w "}" ?w
     "}"]
 
-24 "Material" ["Material" ?@"w" "$" .."{"!"name" ?@"w" "{" ?@"w" l([{
-    @"Name""Name"
-    @"Color""Color"
-    @"Param""Param"
-    @"Texture""Texture"
-} ?@"w"]) ?@"w" "}"]
+24 Material = ["Material" ?w "$" .."{"!:"name" ?w "{" ?w .l([{
+    Name:"Name"
+    Color:"Color"
+    Param:"Param"
+    Texture:"Texture"
+} ?w]) ?w "}"]
 
-25 "OpenGEX" [
-    ?@"w"
-    l([@"Metric""Metric" ?@"w"])
-    l([{
-        @"GeometryNode""GeometryNode"
-        @"LightNode""LightNode"
-        @"CameraNode""CameraNode"
-        @"GeometryObject""GeometryObject"
-        @"LightObject""LightObject"
-        @"CameraObject""CameraObject"
-        @"Material""Material"
-    } ?@"w"])
-    ?@"w"
+25 OpenGEX = [
+    ?w
+    .l([Metric:"Metric" ?w])
+    .l([{
+        GeometryNode:"GeometryNode"
+        LightNode:"LightNode"
+        CameraNode:"CameraNode"
+        GeometryObject:"GeometryObject"
+        LightObject:"LightObject"
+        CameraObject:"CameraObject"
+        Material:"Material"
+    } ?w])
+    ?w
 ]

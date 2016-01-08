@@ -183,11 +183,11 @@ pub enum TrackTarget {
 pub enum Time {
     /// The times are interpolated linearly.
     Linear(Vec<f32>),
-    /// The times are interpolated on a one-dimensional Bézier curve.
+    /// The times are interpolated on a one-dimensional Bezier curve.
     ///
     /// The times in each tuple in the vector are the "value", "-control" and "+control" values of
-    /// the Bézier curve respectively.
-    Bézier(Vec<(f32, f32, f32)>)
+    /// the Bezier curve respectively.
+    Bezier(Vec<(f32, f32, f32)>)
 }
 
 /// The Value structure contains key value data in an animation track.
@@ -200,11 +200,11 @@ pub enum Value {
     Constant(Vec<f32>),
     /// The values are interpolated linearly.
     Linear(Vec<f32>),
-    /// The values are interpolated on a one-dimensional Bézier curve.
+    /// The values are interpolated on a one-dimensional Bezier curve.
     ///
     /// The values in each tuple in the vector are the "value", "-control" and "+control" values of
-    /// the Bézier curve respectively.
-    Bézier(Vec<(f32, f32, f32)>),
+    /// the Bezier curve respectively.
+    Bezier(Vec<(f32, f32, f32)>),
     /// The values are interpolated on a tension-continuity-bias (TCB) spline.
     ///
     /// The values in each tuple in the vector are the "value", "tension", "bias" and "continuity"

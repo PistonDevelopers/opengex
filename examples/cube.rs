@@ -7,7 +7,10 @@ extern crate gfx_device_gl;
 extern crate sdl2_window;
 extern crate piston_meta;
 extern crate piston_meta_search;
+extern crate shader_version;
 
+use shader_version::Shaders;
+use shader_version::glsl::GLSL;
 use std::fs::File;
 use std::io::Read;
 use sdl2_window::Sdl2Window;
@@ -25,8 +28,8 @@ use piston_meta_search::*;
 //----------------------------------------
 // Cube associated data
 
-gfx_vertex!( Vertex {
-    a_pos@ a_pos: [f32; 3],
+gfx_vertex_struct!( Vertex {
+    a_pos: [f32; 3] = "a_pos",
 });
 
 impl Vertex {
@@ -37,17 +40,24 @@ impl Vertex {
     }
 }
 
-gfx_parameters!( Params {
-    u_model_view_proj@ u_model_view_proj: [[f32; 4]; 4],
+gfx_pipeline!( pipe {
+    vbuf: gfx::VertexBuffer<Vertex> = (),
+    u_model_view_proj: gfx::Global<[[f32; 4]; 4]> = "u_model_view_proj",
+    out_color: gfx::RenderTarget<gfx::format::Rgba8> = "o_Color",
+    out_depth: gfx::DepthTarget<gfx::format::DepthStencil> =
+        gfx::preset::depth::LESS_EQUAL_WRITE,
 });
 
 //----------------------------------------
 
 fn main() {
+    let opengl = OpenGL::V3_2;
+
     let mut events: PistonWindow<(), Sdl2Window> =
         WindowSettings::new("piston: cube", [640, 480])
         .exit_on_esc(true)
         .samples(4)
+        .opengl(opengl)
         .build()
         .unwrap();
     events.set_capture_cursor(true);
@@ -81,8 +91,6 @@ fn main() {
             Ok(vs)
         }));
 
-    let mesh = factory.create_mesh(&vertex_data);
-
     let index_data: Vec<u8> = stderr_unwrap(&source, s.for_node("IndexArray",
         |ref mut s| {
             let mut is = Vec::with_capacity(36);
@@ -94,26 +102,22 @@ fn main() {
             Ok(is)
         }));
 
-    let slice = index_data.to_slice(factory, gfx::PrimitiveType::TriangleList);
+    let (vbuf, slice) = factory.create_vertex_buffer_indexed(&vertex_data,
+        &index_data[..]);
 
-    let program = {
-        let vertex = gfx::ShaderSource {
-            glsl_120: Some(include_bytes!("assets/cube_colored_120.glslv")),
-            glsl_150: Some(include_bytes!("assets/cube_colored_150.glslv")),
-            .. gfx::ShaderSource::empty()
-        };
-        let fragment = gfx::ShaderSource {
-            glsl_120: Some(include_bytes!("assets/cube_colored_120.glslf")),
-            glsl_150: Some(include_bytes!("assets/cube_colored_150.glslf")),
-            .. gfx::ShaderSource::empty()
-        };
-        factory.link_program_source(vertex, fragment).unwrap()
-    };
-
-    let mut data = Params {
-        u_model_view_proj: vecmath::mat4_id(),
-        _r: std::marker::PhantomData,
-    };
+    let glsl = opengl.to_glsl();
+    let pso = factory.create_pipeline_simple(
+            Shaders::new()
+                .set(GLSL::V1_20, include_str!("assets/cube_colored_120.glslv"))
+                .set(GLSL::V1_50, include_str!("assets/cube_colored_150.glslv"))
+                .get(glsl).unwrap().as_bytes(),
+            Shaders::new()
+                .set(GLSL::V1_20, include_str!("assets/cube_colored_120.glslf"))
+                .set(GLSL::V1_50, include_str!("assets/cube_colored_150.glslf"))
+                .get(glsl).unwrap().as_bytes(),
+            gfx::state::CullFace::Nothing,
+            pipe::new()
+        ).unwrap();
 
     let get_projection = |w: &PistonWindow<(), Sdl2Window>| {
         let draw_size = w.window.borrow().draw_size();
@@ -129,26 +133,31 @@ fn main() {
         [0.5, 0.5, 4.0],
         FirstPersonSettings::keyboard_wasd()
     );
-    let state = gfx::DrawState::new().depth(gfx::state::Comparison::LessEqual, true);
 
     for e in events {
         first_person.event(&e);
 
-        e.draw_3d(|stream| {
+        e.draw_3d(|encoder| {
             let args = e.render_args().unwrap();
-            stream.clear(
-                gfx::ClearData {
-                    color: [0.3, 0.3, 0.3, 1.0],
-                    depth: 1.0,
-                    stencil: 0,
-                }
-            );
-            data.u_model_view_proj = model_view_projection(
-                model,
-                first_person.camera(args.ext_dt).orthogonal(),
-                projection
-            );
-            stream.draw(&(&mesh, slice.clone(), &program, &data, &state)).unwrap();
+
+            encoder.clear(&e.output_color, [0.3, 0.3, 0.3, 1.0]);
+            encoder.clear_depth(&e.output_stencil, 1.0);
+
+            let data = pipe::Data {
+                vbuf: vbuf.clone(),
+                u_model_view_proj: model_view_projection(
+                    model,
+                    first_person.camera(args.ext_dt).orthogonal(),
+                    projection
+                ),
+                out_color: (*e.output_color).clone(),
+                out_depth: (*e.output_stencil).clone(),
+            };
+            encoder.draw(&slice, &pso, &data);
+        });
+        e.draw_2d(|c, g| {
+            ellipse([1.0, 1.0, 0.0, 1.0], [0.0, 0.0, 10.0, 10.0],
+                c.transform, g);
         });
 
         if let Some(_) = e.resize_args() {

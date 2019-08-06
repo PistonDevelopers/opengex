@@ -1,4 +1,4 @@
-#About
+# About
 This crate contains rules for parsing the OpenGEX format. The data will be stored in structures that interfacing applications can read from. 
 
 ## OpenGEX
